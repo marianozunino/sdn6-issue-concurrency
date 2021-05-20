@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import org.springframework.data.annotation.Version;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -18,6 +19,9 @@ public class A {
 
     @Relationship(direction = Relationship.Direction.OUTGOING, type = "HAS")
     private List<B> bs  =  new ArrayList<>();
+
+    @Version
+    private Long version;
 
     public A() {
     }
@@ -45,5 +49,13 @@ public class A {
                 "id='" + id + '\'' +
                 ", bs=" + bs +
                 '}';
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
