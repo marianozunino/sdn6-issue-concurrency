@@ -6,6 +6,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -13,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SpringBootApplication
+@EnableRetry
 public class DemoApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoApplication.class);
 
@@ -40,6 +45,11 @@ public class DemoApplication {
         for (int i = 0; i < 10; i++) {
             var c = new Callable<String>() {
                 @Override
+                @Retryable(
+                        include = {OptimisticLockingFailureException.class},
+                        maxAttempts = 5,
+                        backoff = @Backoff(delay = 50, multiplier = 2, random = true)
+                )
                 public String call() {
                     var a = aRepository.findById("ac5cf47a-55a9-44a3-bb04-c2e88ff0a6b3").get();
                     a.getBs().add(new B());
